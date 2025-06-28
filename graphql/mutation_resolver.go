@@ -1,5 +1,17 @@
-CreateAccount
+package main
 
-CreateProduct
+type mutationResolver struct{
+	server *Server
+}
 
-CreateOrder
+// func (r *mutationResolver)createAccount(ctx context.context,in AccountInput)(*Account,error){
+
+// }
+
+// func (r *mutationResolver)createProduct(ctx context.context,in ProductInput)(*Product,error){
+	
+// }
+
+// func (r *mutationResolver)createOrder(ctx context.context,in OrderInput)(*Order,error){
+	
+// }
