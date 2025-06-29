@@ -25,7 +25,7 @@ type accountService struct {
 
 // This is a constructor function for accountService
 // This is where the Repository dependency is injected.
-func newService(r Repository)Service{
+func NewService(r Repository)Service{
 	return &accountService{r}
 }
 
