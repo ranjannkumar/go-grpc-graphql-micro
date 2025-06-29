@@ -2,7 +2,7 @@ package catalog
 
 import (
 	"context"
-
+	"github.com/ranjannkumar/go-grpc-grpahql-microservice/catalog/pb"
 	"google.golang.org/grpc"
 )
 
@@ -50,7 +50,7 @@ func(c *Client) GetProduct(ctx context.Context,id string)(*Product,error){
 	r,err:= c.service.GetProduct(
 		ctx,
 		&pb.GetProductRequest{
-			ID:id,
+			Id:id,
 		},
 	)
 	if err!=nil{

@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net"
-
+	"github.com/ranjannkumar/go-grpc-grpahql-microservice/catalog/pb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 type grpcServer struct {
-	pb.UnimplementedAccountServiceServer
+	pb.UnimplementedCatalogServiceServer
 	service Service
 }
 
