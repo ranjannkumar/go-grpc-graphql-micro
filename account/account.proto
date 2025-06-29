@@ -39,7 +39,7 @@ service AccountService{
   rpc PostAccount (PostAccountRequest) returns (PostAccountResponse){
 
   }
-  rpc GetAccount (GetAccountRequest) returns (GetAccountRequest){
+  rpc GetAccount (GetAccountRequest) returns (GetAccountResponse){
 
   }
   rpc GetAccounts (GetAccountsRequest) returns (GetAccountsResponse){
