@@ -3,7 +3,8 @@ package account
 import (
 	"context"
 
-	"github.com/ranjannkumar/go-grpc-grpahql-microservice/account/pb/github.com/ranjannkumar/go-grpc-grpahql-microservice/account/pb"
+	"github.com/ranjannkumar/go-grpc-grpahql-microservice/account/pb"
+
 	"google.golang.org/grpc"
 )
 
