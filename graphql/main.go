@@ -18,12 +18,16 @@ func main() {
 	var cfg AppConfig
 	err := envconfig.Process("", &cfg)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error processing environment config: %v", err)
 	}
+	log.Printf("Config loaded: AccountURL=%s, CatalogURL=%s, OrderURL=%s", cfg.Accounturl, cfg.CatalogURL, cfg.OrderURL) 
+
 	s,err:= NewGraphQLServer(cfg.Accounturl,cfg.CatalogURL,cfg.OrderURL)
 	if err!=nil{
-		log.Fatal(err)
+		log.Fatalf("Error creating GraphQL server: %v", err)
 	}
+	log.Println("GraphQL server starting and handlers being registered...")
+
 
 	http.Handle("/graphql",handler.New(s.ToExecutableSchema()))
 	http.Handle("/playground",playground.Handler("ranjan","/graphql"))

@@ -13,14 +13,14 @@ type Product {
   price: Float!
 }
 
-type Order{
+type Order {
   id: String!
   createdAt: Time!
   totalPrice: Float!
   products: [OrderedProduct!]!
 }
 
-type OrderedProduct{
+type OrderedProduct {
   id: String!
   name: String!
   description: String!
@@ -28,40 +28,38 @@ type OrderedProduct{
   quantity: Int!
 }
 
-input PaginationInput{
+input PaginationInput {
   skip: Int
   take: Int
 }
 
-input AccountInput{
+input AccountInput {
   name: String!
 }
 
-input ProductInput{
+input ProductInput {
   name: String!
   description: String!
   price: Float!
 }
 
-input OrderProductInput{
+input OrderProductInput {
   id: String!
   quantity: Int!
 }
 
-input OrderInput{
+input OrderInput {
   accountId: String!
   products: [OrderProductInput!]!
 }
 
-type Mutation{
-  createAccount(account: AccountInput!):Account
-  createProduct(product: ProductInput!):Product
-  createOrder(order: OrderInput!):Order
+type Mutation {
+  createAccount(account: AccountInput!): Account
+  createProduct(product: ProductInput!): Product
+  createOrder(order: OrderInput!): Order
 }
 
-type Query{
-  accounts(pagination: PaginationInput,id:String):[Account!]!
-  products(pagination: PaginationInput,query: String,id: String):[Product!]!
+type Query {
+  accounts(pagination: PaginationInput, id: String): [Account!]!
+  products(pagination: PaginationInput, query: String, id: String): [Product!]!
 }
-
-
