@@ -2,6 +2,10 @@ package catalog
 
 import (
 	"context"
+	"fmt"
+	"log"
+	"time"
+
 	"github.com/ranjannkumar/go-grpc-grpahql-microservice/catalog/pb"
 	"google.golang.org/grpc"
 )
@@ -11,13 +15,38 @@ type Client struct {
 	service pb.CatalogServiceClient
 }
 
-func NewClient(url string)(*Client,error){
-	conn,err := grpc.Dial(url,grpc.WithInsecure())
-	if err !=nil{
-		return nil,err
+func NewClient(url string) (*Client, error) {
+	var conn *grpc.ClientConn
+	var err error
+
+	maxRetries := 5
+	retryInterval := 2 * time.Second
+	totalTimeout := 15 * time.Second
+
+	ctxRetry, cancelRetry := context.WithTimeout(context.Background(), totalTimeout)
+	defer cancelRetry()
+
+	for i := 0; i < maxRetries; i++ {
+		log.Printf("Attempting to connect to Catalog service at %s (Attempt %d/%d)...", url, i+1, maxRetries)
+		ctxDial, cancelDial := context.WithTimeout(context.Background(), retryInterval)
+		defer cancelDial()
+
+		conn, err = grpc.DialContext(ctxDial, url, grpc.WithInsecure(), grpc.WithBlock())
+		if err == nil {
+			log.Printf("Successfully connected to Catalog service at %s", url)
+			c := pb.NewCatalogServiceClient(conn)
+			return &Client{conn, c}, nil
+		}
+
+		log.Printf("Failed to connect to Catalog service: %v. Retrying in %v...", err, retryInterval)
+		select {
+		case <-time.After(retryInterval):
+		case <-ctxRetry.Done():
+			return nil, fmt.Errorf("failed to connect to Catalog service after multiple retries (total timeout reached): %w", ctxRetry.Err())
+		}
 	}
-	c := pb.NewCatalogServiceClient(conn)
-	return &Client{conn,c},nil
+
+	return nil, fmt.Errorf("failed to connect to Catalog service after %d retries: %w", maxRetries, err)
 }
 
 func(c *Client) Close(){

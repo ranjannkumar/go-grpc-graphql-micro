@@ -2,6 +2,9 @@ package account
 
 import (
 	"context"
+	"fmt"
+	"log"
+	"time"
 
 	"github.com/ranjannkumar/go-grpc-grpahql-microservice/account/pb"
 
@@ -17,14 +20,44 @@ type Client struct {
 	// (e.g., PostAccount, GetAccount, GetAccounts).
 	service pb.AccountServiceClient
 }
+func NewClient(url string) (*Client, error) {
+	var conn *grpc.ClientConn
+	var err error
 
-func NewClient(url string)(*Client,error){
-	conn,err := grpc.Dial(url,grpc.WithInsecure())
-	if err != nil{
-		return nil,err
+	// Define retry parameters
+	maxRetries := 5 // Number of retry attempts
+	retryInterval := 2 * time.Second // Time between retries
+	totalTimeout := 15 * time.Second // Total time to attempt connection
+
+	// Use a context for the overall retry loop
+	ctxRetry, cancelRetry := context.WithTimeout(context.Background(), totalTimeout)
+	defer cancelRetry()
+
+	for i := 0; i < maxRetries; i++ {
+		log.Printf("Attempting to connect to Account service at %s (Attempt %d/%d)...", url, i+1, maxRetries)
+		
+		// Context for the individual Dial attempt
+		ctxDial, cancelDial := context.WithTimeout(context.Background(), retryInterval) // Use retryInterval for individual dial timeout
+		defer cancelDial() // Ensure this cancel is called for each loop iteration
+
+		conn, err = grpc.DialContext(ctxDial, url, grpc.WithInsecure(), grpc.WithBlock())
+		if err == nil {
+			log.Printf("Successfully connected to Account service at %s", url)
+			c := pb.NewAccountServiceClient(conn)
+			return &Client{conn, c}, nil
+		}
+
+		log.Printf("Failed to connect to Account service: %v. Retrying in %v...", err, retryInterval)
+		select {
+		case <-time.After(retryInterval):
+			// Wait for the interval before next retry
+		case <-ctxRetry.Done():
+			// If overall timeout reached, stop retrying
+			return nil, fmt.Errorf("failed to connect to Account service after multiple retries (total timeout reached): %w", ctxRetry.Err())
+		}
 	}
-	c := pb.NewAccountServiceClient(conn)
-	return &Client{conn,c},nil
+
+	return nil, fmt.Errorf("failed to connect to Account service after %d retries: %w", maxRetries, err)
 }
 
 func (c *Client)Close(){
